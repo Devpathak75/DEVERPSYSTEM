@@ -8,38 +8,44 @@ public class EmailUtil {
 
     public static boolean sendMail(String to, int otp) {
 
-        final String from = "devinstituteoftechnologyandeng@gmail.com";
-        final String password = "ifnlhvnhuhrqugcn"; // APP PASSWORD
+        final String from = "aa9229001@smtp-brevo.com";
+
+        final String password = "xsmtpsib-19755b1557b3ab84368725f412692722d7f0372ec987fa57909e1b3131b92f74-G0DwlHvIHAzZga19";
 
         Properties props = new Properties();
 
-        // 🔥 REQUIRED PROPERTIES
+        // BREVO SMTP
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.host", "smtp-relay.brevo.com");
         props.put("mail.smtp.port", "587");
 
-        // 🔥 TIMEOUTS (IMPORTANT)
+        // TIMEOUTS
         props.put("mail.smtp.connectiontimeout", "10000");
         props.put("mail.smtp.timeout", "10000");
 
         Session session = Session.getInstance(props,
             new Authenticator() {
+
                 protected PasswordAuthentication getPasswordAuthentication() {
+
                     return new PasswordAuthentication(from, password);
                 }
             });
 
         try {
+
             Message msg = new MimeMessage(session);
 
             msg.setFrom(new InternetAddress(from, "Devs Institute ERP"));
-            msg.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse(to));
+
+            msg.setRecipients(
+                Message.RecipientType.TO,
+                InternetAddress.parse(to)
+            );
 
             msg.setSubject("Your College ERP Login OTP");
 
-            // 🔥 HTML MESSAGE (BETTER DELIVERY)
             msg.setContent(
                 "<h2>College ERP Login</h2>" +
                 "<p>Your OTP is:</p>" +
@@ -50,12 +56,16 @@ public class EmailUtil {
 
             Transport.send(msg);
 
-            System.out.println("✅ OTP MAIL SENT TO: " + to);
+            System.out.println("OTP MAIL SENT TO: " + to);
+
             return true;
 
         } catch (Exception e) {
-            System.out.println("❌ MAIL FAILED FOR: " + to);
+
+            System.out.println("MAIL FAILED FOR: " + to);
+
             e.printStackTrace();
+
             return false;
         }
     }
