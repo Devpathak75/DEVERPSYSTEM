@@ -14,9 +14,9 @@ public class DBConnection {
             Class.forName("org.postgresql.Driver");
 
             con = DriverManager.getConnection(
-                "jdbc:postgresql://dpg-d7ua3nhpo60c73e9p280-a:5432/collegeerp",
+                "jdbc:postgresql://dpg-d7ua3nhpo60c73e9p280-a.oregon-postgres.render.com:5432/collegeerp",
                 "collegeuser",
-                "YOUR_PASSWORD_HERE"
+                "06SfbqyDz7gxWaAlQ5EYFpngjhjgG5PT"
             );
 
         } catch (Exception e) {
