@@ -10,12 +10,13 @@ public class DBConnection {
     public static Connection getConnection() {
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            Class.forName("org.postgresql.Driver");
 
             con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/college_erp",
-                "root",
-                "devpathak"
+                "jdbc:postgresql://dpg-d7ua3nhpo60c73e9p280-a:5432/collegeerp",
+                "collegeuser",
+                "YOUR_PASSWORD_HERE"
             );
 
         } catch (Exception e) {
