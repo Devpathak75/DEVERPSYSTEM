@@ -9,7 +9,7 @@ public class EmailUtil {
     public static boolean sendMail(String to, int otp) {
 
         final String from = "devinstituteoftechnologyandeng@gmail.com";
-        final String password = "bpcnqabjpkrqmghu"; // APP PASSWORD
+        final String password = "ifnlhvnhuhrqugcn"; // APP PASSWORD
 
         Properties props = new Properties();
 
