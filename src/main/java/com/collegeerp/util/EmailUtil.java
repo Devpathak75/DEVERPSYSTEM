@@ -16,14 +16,14 @@ public class EmailUtil {
     public static boolean sendMail(String to, int otp) {
 
         final String from =
-            "aa9229001@smtp-brevo.com";
+            "devinstituteoftechnologyandeng@gmail.com";
 
         final String password =
-            "xsmtpsib-19755b1557b3ab84368725f412692722d7f0372ec987fa57909e1b3131b92f74-G0DwlHvIHAzZga19";
+            "YOUR_GMAIL_APP_PASSWORD";
 
         Properties props = new Properties();
 
-        // BREVO SMTP SETTINGS
+        // GMAIL SMTP SETTINGS
 
         props.put("mail.smtp.auth",
                 "true");
@@ -32,7 +32,7 @@ public class EmailUtil {
                 "true");
 
         props.put("mail.smtp.host",
-                "smtp-relay.brevo.com");
+                "smtp.gmail.com");
 
         props.put("mail.smtp.port",
                 "587");
