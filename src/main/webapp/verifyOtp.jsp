@@ -2,8 +2,9 @@
 
 <%
     // ===============================
-    // SESSION SAFETY (VERY IMPORTANT)
+    // SESSION SAFETY
     // ===============================
+
     HttpSession s = request.getSession(false);
 
     if (s == null) {
@@ -24,15 +25,19 @@
     String error =
             request.getParameter("error");
 
+    // ===============================
     // EMAIL FROM SESSION
+    // ===============================
 
     String email =
             (String) s.getAttribute("email");
 
-    // OTP FROM REQUEST
+    // ===============================
+    // OTP FROM SESSION
+    // ===============================
 
     Object otpObj =
-            request.getAttribute("otp");
+            s.getAttribute("otp");
 
     String otpValue = "";
 
@@ -41,7 +46,21 @@
         otpValue = otpObj.toString();
     }
 
+    // ===============================
+    // OTP MAIL SEND CONTROL
+    // ===============================
+
+    Boolean mailSent =
+            (Boolean) s.getAttribute("mailSent");
+
+    if (mailSent == null) {
+
+        mailSent = false;
+    }
+
+    // ===============================
     // RESEND CONTROL
+    // ===============================
 
     Long lastOtpTime =
             (Long) s.getAttribute("otpTime");
@@ -51,14 +70,20 @@
 
     boolean canResend = true;
 
+    long remainingSeconds = 0;
+
     if (lastOtpTime != null &&
         (now - lastOtpTime) < 30000) {
 
         canResend = false;
+
+        remainingSeconds =
+            30 - ((now - lastOtpTime) / 1000);
     }
 %>
 
 <!DOCTYPE html>
+
 <html>
 
 <head>
@@ -238,7 +263,7 @@
 
             font-size: 13px;
 
-            margin-top: 10px;
+            margin-top: 12px;
         }
 
         .footer {
@@ -267,7 +292,9 @@
     <img src="images/university.png">
 
     <div class="header-title">
+
         Devs Institute of Technology and Engineering
+
     </div>
 
     <img src="images/college.png">
@@ -280,25 +307,9 @@
 
         <h2>Verify OTP</h2>
 
-        <!-- SUCCESS MESSAGE -->
+        <!-- OTP SENT MESSAGE -->
 
-        <% if("1".equals(resent) && email != null){ %>
-
-            <div class="success">
-
-                OTP resent to <br>
-
-                <span style="color:#0d47a1;">
-
-                    <%= email %>
-
-                </span>
-
-            </div>
-
-        <% } %>
-
-        <% if("1".equals(sent) && email != null){ %>
+        <% if(email != null){ %>
 
             <div class="success">
 
@@ -314,6 +325,20 @@
 
         <% } %>
 
+        <!-- RESENT MESSAGE -->
+
+        <% if("1".equals(resent)){ %>
+
+            <div class="success">
+
+                New OTP sent successfully
+
+            </div>
+
+        <% } %>
+
+        <!-- ERROR MESSAGE -->
+
         <% if(error != null){ %>
 
             <div class="error">
@@ -324,7 +349,7 @@
 
         <% } %>
 
-        <!-- OTP FORM -->
+        <!-- VERIFY OTP FORM -->
 
         <form action="verifyOtp" method="post">
 
@@ -349,9 +374,9 @@
         <form action="resendOtp" method="post">
 
             <button
+                id="resendBtn"
                 type="submit"
                 class="resend"
-
                 <%= !canResend ? "disabled" : "" %>
             >
 
@@ -360,6 +385,22 @@
             </button>
 
         </form>
+
+        <!-- TIMER -->
+
+        <% if(!canResend){ %>
+
+            <div class="info">
+
+                Resend available in
+                <span id="timer">
+                    <%= remainingSeconds %>
+                </span>
+                sec
+
+            </div>
+
+        <% } %>
 
     </div>
 
@@ -371,59 +412,130 @@
 
 </div>
 
-<!-- EMAILJS -->
+<!-- ========================= -->
+<!-- EMAILJS CDN -->
+<!-- ========================= -->
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<!-- ========================= -->
+<!-- EMAILJS INIT -->
+<!-- ========================= -->
 
 <script>
 
 (function () {
 
-    emailjs.init(
-        "EV3nXq16r9wmdJ9Et"
-    );
+    emailjs.init({
+
+        publicKey:
+            "EV3nXq16r9wmdJ9Et"
+
+    });
 
 })();
 
-<% if(sent != null && otpValue != null && !otpValue.isEmpty()){ %>
+</script>
 
-emailjs.send(
+<!-- ========================= -->
+<!-- SEND OTP MAIL -->
+<!-- ========================= -->
 
-    "service_vfxqild",
+<script>
 
-    "template_2qhv29g",
+window.onload = function () {
 
-    {
+    <% if(
+        otpValue != null &&
+        !otpValue.isEmpty() &&
+        !mailSent
+    ){ %>
 
-        to_email:
-            "<%= email %>",
+    emailjs.send(
 
-        otp:
-            "<%= otpValue %>"
-    }
+        "service_vfxqild",
 
-)
-.then(function(response) {
+        "template_2qhv29g",
 
-    console.log(
-        "EMAIL SENT",
-        response.status,
-        response.text
-    );
+        {
 
-})
-.catch(function(error) {
+            to_email:
+                "<%= email %>",
 
-    console.log(
-        "EMAIL FAILED",
-        error
-    );
+            otp:
+                "<%= otpValue %>"
 
-});
+        }
 
-<% } %>
+    )
+
+    .then(function(response) {
+
+        console.log(
+            "EMAIL SENT SUCCESSFULLY"
+        );
+
+        fetch("markMailSent.jsp");
+
+    })
+
+    .catch(function(error) {
+
+        console.log(
+            "EMAIL FAILED"
+        );
+
+        console.log(error);
+
+        alert(
+            "OTP email failed. Check browser console."
+        );
+
+    });
+
+    <% } %>
+
+};
+
+</script>
+
+<!-- ========================= -->
+<!-- RESEND TIMER -->
+<!-- ========================= -->
+
+<script>
+
+let timerElement =
+    document.getElementById("timer");
+
+let resendBtn =
+    document.getElementById("resendBtn");
+
+let seconds =
+    <%= remainingSeconds %>;
+
+if (timerElement) {
+
+    let countdown = setInterval(function () {
+
+        seconds--;
+
+        timerElement.innerText = seconds;
+
+        if (seconds <= 0) {
+
+            clearInterval(countdown);
+
+            resendBtn.disabled = false;
+
+            timerElement.innerText = "0";
+        }
+
+    }, 1000);
+}
 
 </script>
 
 </body>
+
 </html>
