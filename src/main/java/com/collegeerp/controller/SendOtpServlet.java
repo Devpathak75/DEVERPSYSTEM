@@ -6,7 +6,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Random;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +24,7 @@ public class SendOtpServlet extends HttpServlet {
     protected void doPost(
             HttpServletRequest request,
             HttpServletResponse response)
+
             throws IOException {
 
         HttpSession session =
@@ -37,14 +41,17 @@ public class SendOtpServlet extends HttpServlet {
         String role =
                 request.getParameter("role");
 
-        if (role == null || role.trim().isEmpty()) {
+        if (role == null ||
+            role.trim().isEmpty()) {
 
             role =
                 (String) session.getAttribute("role");
 
         } else {
 
-            session.setAttribute("role", role);
+            session.setAttribute(
+                    "role",
+                    role);
         }
 
         // INVALID ROLE
@@ -52,8 +59,7 @@ public class SendOtpServlet extends HttpServlet {
         if (role == null) {
 
             response.sendRedirect(
-                "login.jsp?error=InvalidRole"
-            );
+                    "login.jsp?error=InvalidRole");
 
             return;
         }
@@ -77,18 +83,20 @@ public class SendOtpServlet extends HttpServlet {
             if ("student".equals(role)) {
 
                 String enrollment =
-                        request.getParameter("enrollment");
+                        request.getParameter(
+                                "enrollment");
 
                 String password =
-                        request.getParameter("password");
+                        request.getParameter(
+                                "password");
 
                 ps = con.prepareStatement(
 
-                    "SELECT id, name, email, password, " +
+                        "SELECT id, name, email, " +
 
-                    "year, department_id " +
+                        "password, year, department_id " +
 
-                    "FROM student WHERE enrollment=?"
+                        "FROM student WHERE enrollment=?"
 
                 );
 
@@ -100,7 +108,7 @@ public class SendOtpServlet extends HttpServlet {
 
                     response.sendRedirect(
 
-                        "login.jsp?type=student&error=Enrollment not found"
+                            "login.jsp?type=student&error=Enrollment not found"
 
                     );
 
@@ -112,14 +120,15 @@ public class SendOtpServlet extends HttpServlet {
 
                     response.sendRedirect(
 
-                        "login.jsp?type=student&error=Wrong password"
+                            "login.jsp?type=student&error=Wrong password"
 
                     );
 
                     return;
                 }
 
-                email = rs.getString("email");
+                email =
+                        rs.getString("email");
 
                 session.setAttribute(
                         "studentId",
@@ -156,9 +165,9 @@ public class SendOtpServlet extends HttpServlet {
 
                 ps = con.prepareStatement(
 
-                    "SELECT email FROM admin " +
+                        "SELECT email FROM admin " +
 
-                    "WHERE email=? AND password=?"
+                        "WHERE email=? AND password=?"
 
                 );
 
@@ -172,14 +181,15 @@ public class SendOtpServlet extends HttpServlet {
 
                     response.sendRedirect(
 
-                        "login.jsp?type=admin&error=Invalid credentials"
+                            "login.jsp?type=admin&error=Invalid credentials"
 
                     );
 
                     return;
                 }
 
-                email = rs.getString("email");
+                email =
+                        rs.getString("email");
 
                 session.setAttribute(
                         "email",
@@ -200,9 +210,9 @@ public class SendOtpServlet extends HttpServlet {
 
                 ps = con.prepareStatement(
 
-                    "SELECT email FROM faculty " +
+                        "SELECT email FROM faculty " +
 
-                    "WHERE email=? AND password=?"
+                        "WHERE email=? AND password=?"
 
                 );
 
@@ -216,14 +226,15 @@ public class SendOtpServlet extends HttpServlet {
 
                     response.sendRedirect(
 
-                        "login.jsp?type=faculty&error=Invalid credentials"
+                            "login.jsp?type=faculty&error=Invalid credentials"
 
                     );
 
                     return;
                 }
 
-                email = rs.getString("email");
+                email =
+                        rs.getString("email");
 
                 session.setAttribute(
                         "email",
@@ -233,8 +244,7 @@ public class SendOtpServlet extends HttpServlet {
             else {
 
                 response.sendRedirect(
-                    "login.jsp?error=InvalidRole"
-                );
+                        "login.jsp?error=InvalidRole");
 
                 return;
             }
@@ -247,7 +257,9 @@ public class SendOtpServlet extends HttpServlet {
                     new Random().nextInt(900000)
                     + 100000;
 
-            session.setAttribute("otp", otp);
+            session.setAttribute(
+                    "otp",
+                    otp);
 
             session.setAttribute(
                     "otpTime",
@@ -263,18 +275,26 @@ public class SendOtpServlet extends HttpServlet {
                     "otp",
                     otp);
 
+            request.setAttribute(
+                    "sent",
+                    "1");
+
             System.out.println(
                     "ROLE: " + role);
 
             System.out.println(
                     "OTP GENERATED FOR: " + email);
 
-            // NO EMAILUTIL NOW
+            System.out.println(
+                    "OTP IS: " + otp);
 
-            request.getRequestDispatcher(
-                    "verifyOtp.jsp")
-                    .forward(request, response);
+            // FORWARD TO VERIFY PAGE
 
+            RequestDispatcher rd =
+                    request.getRequestDispatcher(
+                            "verifyOtp.jsp");
+
+            rd.forward(request, response);
         }
 
         catch (Exception e) {
