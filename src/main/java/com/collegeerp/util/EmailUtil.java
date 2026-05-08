@@ -23,22 +23,22 @@ public class EmailUtil {
 
         Properties props = new Properties();
 
-        // BREVO SMTP SSL SETTINGS
+        // BREVO SMTP SETTINGS
+
+        props.put("mail.smtp.auth",
+                "true");
+
+        props.put("mail.smtp.starttls.enable",
+                "true");
 
         props.put("mail.smtp.host",
                 "smtp-relay.brevo.com");
 
         props.put("mail.smtp.port",
-                "465");
+                "587");
 
-        props.put("mail.smtp.auth",
-                "true");
-
-        props.put("mail.smtp.socketFactory.port",
-                "465");
-
-        props.put("mail.smtp.socketFactory.class",
-                "javax.net.ssl.SSLSocketFactory");
+        props.put("mail.smtp.ssl.protocols",
+                "TLSv1.2");
 
         // TIMEOUTS
 
